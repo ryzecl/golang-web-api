@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"pustaka-api/book"
 	"pustaka-api/handler"
@@ -20,66 +19,23 @@ func main() {
 
 	db.AutoMigrate(&book.Book{})
 
-	// ?CREATE DATA
-	// book := book.Book{}
-	// book.Title = "Psychology of Money"
-	// book.Description = "Buku pengembangan money:)"
-	// book.Price = 99000
-	// book.Discount = 5
-	// book.Rating = 5
+	bookRepository := book.NewRepository(db)
+	bookService := book.NewService(bookRepository)
 
-	// errCreateBook := db.Create(&book).Error
-	// if errCreateBook != nil {
-	// }
-
-	// ?READ DATA
-	// var books []book.Book
-
-	// readBooks := db.Debug().Where("rating = ?", 5).Find(&books).Error
-	// if readBooks != nil {
-	// 	fmt.Println("Failed to fetch data", readBooks)
-	// 	return
-	// }
-
-	// for _, b := range books {
-	// 	fmt.Printf("book object %v", b.Title)
-	// 	fmt.Printf("book object %v", b)
-	// }
-
-	// UPDATE DATA
-	// var book book.Book
-
-	// updateBook := db.Debug().Where("id = ?", 1).Find(&book).Error
-	// if updateBook != nil {
-	// 	fmt.Println("Failed to fetch data", updateBook)
-	// 	return
-	// }
-
-	// book.Title = "Islam Ala Nabi"
-	// errUpdate := db.Save(&book).Error
-	// if errUpdate != nil {
-	// 	fmt.Println("Failed to update book", errUpdate)
-	// 	return
-	// }
-
-	// fmt.Printf("book update successfully %v", book)
-
-	// DELETE DATA
-	var book book.Book
-
-	deleteBook := db.Debug().Where("id = ?", 3).First(&book).Error
-	if deleteBook != nil {
-		fmt.Println(deleteBook)
-		return
+	bookRequest := book.BookRequest{
+		Title: "From Zero to Hero",
+		// Description: "Buku yang menyadarkan kita bahwa setiap tindakan harus kita pikirkan matang matang",
+		Price: "99000",
+		// Rating:   5,
+		// Discount: 5,
 	}
 
-	errDelete := db.Delete(&book).Error
-	if errDelete != nil {
-		fmt.Printf("Delete failed %v", errDelete)
-		return
+	createBook, err := bookService.Create(bookRequest)
+	if err != nil {
+		log.Fatal("Failed to create book", err)
 	}
 
-	fmt.Print("Book deleted successfully")
+	log.Println("Book created", createBook)
 
 	router := gin.Default()
 
