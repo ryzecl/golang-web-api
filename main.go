@@ -21,31 +21,18 @@ func main() {
 
 	bookRepository := book.NewRepository(db)
 	bookService := book.NewService(bookRepository)
-
-	bookRequest := book.BookRequest{
-		Title: "From Zero to Hero",
-		// Description: "Buku yang menyadarkan kita bahwa setiap tindakan harus kita pikirkan matang matang",
-		Price: "99000",
-		// Rating:   5,
-		// Discount: 5,
-	}
-
-	createBook, err := bookService.Create(bookRequest)
-	if err != nil {
-		log.Fatal("Failed to create book", err)
-	}
-
-	log.Println("Book created", createBook)
+	bookHandler := handler.NewBookHandler(bookService)
 
 	router := gin.Default()
 
 	v1 := router.Group("/v1")
 
-	v1.GET("/", handler.RootHandler)
-	v1.GET("/hello", handler.HelloHandler)
-	v1.GET("/books/:id/:title", handler.BooksHandler)
-	v1.GET("/query", handler.QueryHandler)
-	v1.POST("/books", handler.PostBooksHandler)
+	v1.GET("/books", bookHandler.GetBooks)
+	v1.GET("/books/:id", bookHandler.GetBook)
+	v1.PUT("/books/:id", bookHandler.UpdateBook)
+	v1.DELETE("/books/:id", bookHandler.DeleteBook)
+
+	v1.POST("/books", bookHandler.CreateBook)
 
 	router.Run(":8080")
 }
